@@ -11,7 +11,7 @@ comments: false
 
 Create a new empty android project with no activity within Android Studio
 
-![](./img/writing-android-plugin-001.png "create android project")
+![](../img/writing-android-plugin-001.png "create android project")
 
 Note that you can select project or package view with the above top left project view panel as well as rick-clicking to get project settings.
 
