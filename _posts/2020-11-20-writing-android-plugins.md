@@ -47,4 +47,11 @@ public class UnityPluginExample {
 
 ## Calling from C#
 
-//todo
+Create an AndroidJavaObject and call a method on it, this will instantiate an object based on the class you declared in java.
+
+```csharp
+public void NativeConsoleLog(string message) {
+   var nativePlugin = new AndroidJavaObject("com.dashforward.unitylib.UnityPluginExample");
+   nativePlugin.Call("_ConsoleLog", message);
+}
+```
