@@ -16,8 +16,8 @@ Create a new **Static Library** project with just one file.
 #import <UIKit/UIKit.h>
 
 void _ConsoleLog(char* message) {
-    NSString *nsMessage = [NSString stringWithUTF8String:message];
-    NSLog(@"%@", nsMessage);
+  NSString *nsMessage = [NSString stringWithUTF8String:message];
+  NSLog(@"%@", nsMessage);
 }
 ```
 
