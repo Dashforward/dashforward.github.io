@@ -28,7 +28,7 @@ Note that you can select project or package view with the above top left project
 3) Write the plugin in java
 
 ```java
-package com.dashforward.unityplugin;
+package com.example.unityplugin;
 import android.util.Log;
 
 public class UnityPluginExample {
@@ -51,7 +51,7 @@ Create an AndroidJavaObject and call a method on it, this will instantiate an ob
 
 ```csharp
 public void NativeConsoleLog(string message) {
-   var nativePlugin = new AndroidJavaObject("com.dashforward.unitylib.UnityPluginExample");
+   var nativePlugin = new AndroidJavaObject("com.example.unitylib.UnityPluginExample");
    nativePlugin.Call("_ConsoleLog", message);
 }
 ```
