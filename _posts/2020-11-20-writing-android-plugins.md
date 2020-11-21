@@ -5,7 +5,7 @@ subtitle: Part 1 - Hello World
 comments: false
 ---
 
-{% assign imgurl = "/assets/img/2020-11-20-writing-android-plugins/" %}
+{% assign imgurl = "/assets/img/posts/2020-11-20-writing-android-plugins/" %}
 
 Writing to the console log from an android library
 
