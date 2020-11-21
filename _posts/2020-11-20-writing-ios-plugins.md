@@ -5,7 +5,7 @@ subtitle: Part 1 - Hello World
 comments: false
 ---
 
-{% assign imgurl = "{{site.baseurl}}/assets/img/2020-11-20-writing-ios-plugins/" %}
+{% assign imgurl = "/assets/img/2020-11-20-writing-ios-plugins/" %}
 
 Writing to the console log from an ios library
 
@@ -13,7 +13,7 @@ Writing to the console log from an ios library
 
 Create a new **Static Library** project with just one file.
 
-<img src="{{imgurl}}writing-ios-plugins-001.png">
+<img src="{{site.baseurl}}{{imgurl}}writing-ios-plugins-001.png">
 
 ```objectivec
 #import <Foundation/Foundation.h>
@@ -31,7 +31,7 @@ Build the library and copy it to your Unity project.
 
 To automate that go the build settings in xcode, select your library as a target add a new Run Script Build Phase
 
-<img src="{{imgurl}}writing-ios-plugins-002.png">
+<img src="{{site.baseurl}}{{imgurl}}writing-ios-plugins-002.png">
 
 Here we use a path relative to our project.
 
@@ -39,7 +39,7 @@ Here we use a path relative to our project.
 cp -f -R ${BUILT_PRODUCTS_DIR}/${APPLICATION_NAME} ${PROJECT_DIR}/../../Assets/Plugins
 ```
 
-<img src="{{imgurl}}writing-ios-plugins-003.png">
+<img src="{{site.baseurl}}{{imgurl}}writing-ios-plugins-003.png">
 
 ## Calling from C#
 

@@ -5,7 +5,7 @@ subtitle: Part 1 - Hello World
 comments: false
 ---
 
-{% assign imgurl = "{{site.baseurl}}/assets/img/2020-11-20-writing-android-plugins/" %}
+{% assign imgurl = "/assets/img/2020-11-20-writing-android-plugins/" %}
 
 Writing to the console log from an android library
 
@@ -13,13 +13,13 @@ Writing to the console log from an android library
 
 Create a new empty android project with no activity within Android Studio
 
-<img src="{{imgurl}}writing-android-plugin-001.png">
+<img src="{{site.baseurl}}{{imgurl}}writing-android-plugin-001.png">
 
 Note that you can select project or package view with the above top left project view panel as well as rick-clicking to get project settings.
 
 1) Right click on the project and create a new module, select android library
 
-<img src="{{imgurl}}writing-android-plugin-002.png">
+<img src="{{site.baseurl}}{{imgurl}}writing-android-plugin-002.png">
 
 2) Remove the old app plugin by applying the following steps
 
@@ -58,7 +58,7 @@ task copyPlugin(type: Copy) {
 }
 ```
 
-<img src="{{imgurl}}writing-android-plugin-003.png">
+<img src="{{site.baseurl}}{{imgurl}}writing-android-plugin-003.png">
 
 
 ## Calling from C#
