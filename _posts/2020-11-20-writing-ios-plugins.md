@@ -23,7 +23,7 @@ Build the library and copy it to your Unity project.
 
 ## Calling from C#
 
-```
+```C#
 using System.Runtime.InteropServices;
 
 [DllImport("__Internal")]
