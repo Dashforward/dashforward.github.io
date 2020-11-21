@@ -40,7 +40,21 @@ public class UnityPluginExample {
 }
 ```
 
-4) Build the library and copy it to your Unity project.
+## Copying the library
+
+Build the library and copy it to your Unity project.
+
+To copy the library to your unity project every time your recompile, add the following to the `build.gradle` inside the library folder:
+Here we use a path relative to our project.
+
+```gradle
+task copyPlugin(type: Copy) {
+  dependsOn assemble
+  from('build/outputs/aar')
+  into('../../../../Assets/Plugins/Android')
+  include(project.name + '-release.aar')
+}
+```
 
 <img src="{{site.baseurl}}/assets/img/writing-android-plugin-003.png">
 
@@ -51,7 +65,7 @@ Create an AndroidJavaObject and call a method on it, this will instantiate an ob
 
 ```csharp
 public void NativeConsoleLog(string message) {
-   var nativePlugin = new AndroidJavaObject("com.example.unitylib.UnityPluginExample");
-   nativePlugin.Call("_ConsoleLog", message);
+  var nativePlugin = new AndroidJavaObject("com.example.unitylib.UnityPluginExample");
+  nativePlugin.Call("_ConsoleLog", message);
 }
 ```
