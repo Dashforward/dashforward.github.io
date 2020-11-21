@@ -25,7 +25,7 @@ Build the library and copy it to your Unity project.
 
 ## Calling from C#
 
-```C#
+```csharp
 using System.Runtime.InteropServices;
 
 [DllImport("__Internal")]
