@@ -1,13 +1,13 @@
 ---
 layout: post
 title: Writing ios plugins for Unity
-subtitle: 
+subtitle: Part 1 - Hello World
 comments: false
 ---
 
 {% assign imgurl = "{{site.baseurl}}/assets/img/2020-11-20-writing-ios-plugins/" %}
 
-# Part 1: Hello World
+Writing to the console log from an ios library
 
 ## Writing a library
 

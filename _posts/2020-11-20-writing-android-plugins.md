@@ -1,13 +1,13 @@
 ---
 layout: post
 title: Writing android plugins for Unity
-subtitle: 
+subtitle: Part 1 - Hello World
 comments: false
 ---
 
 {% assign imgurl = "{{site.baseurl}}/assets/img/2020-11-20-writing-android-plugins/" %}
 
-# Part 1: Hello World
+Writing to the console log from an android library
 
 ## Writing a library
 
