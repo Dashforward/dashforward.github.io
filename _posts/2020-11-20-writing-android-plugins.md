@@ -11,13 +11,14 @@ comments: false
 
 Create a new empty android project with no activity within Android Studio
 
-![](./img/writing-android-plugin-001.png "create android project")
+<img src="./img/writing-android-plugin-001.png">
+
 
 Note that you can select project or package view with the above top left project view panel as well as rick-clicking to get project settings.
 
 1) Right click on the project and create a new module, select android library
 
-![](./img/writing-android-plugin-002.png "create android project")
+<img src="./img/writing-android-plugin-002.png" width="400">
 
 2) Remove the old app plugin by applying the following steps
 
@@ -42,7 +43,7 @@ public class UnityPluginExample {
 
 4) Build the library and copy it to your Unity project.
 
-![](./img/writing-android-plugin-003.png "build using gradle")
+<img src="./img/writing-android-plugin-003.png" width="300">
 
 
 ## Calling from C#
