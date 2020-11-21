@@ -5,71 +5,31 @@ subtitle:
 comments: false
 ---
 
-This is a demo post to show you how to write blog posts with markdown.  I strongly encourage you to [take 5 minutes to learn how to write in markdown](https://markdowntutorial.com/) - it'll teach you how to transform regular text into bold/italics/headings/tables/etc.
+## Writing a library
 
-**Here is some bold text**
+Create a new **Static Library** project with just one file.
 
-## Here is a secondary heading
+```objectivec
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-Here's a useless table:
-
-| Number | Next number | Previous number |
-| :------ |:--- | :--- |
-| Five | Six | Four |
-| Ten | Eleven | Nine |
-| Seven | Eight | Six |
-| Two | Three | One |
-
-
-How about a yummy crepe?
-
-![Crepe](https://s3-media3.fl.yelpcdn.com/bphoto/cQ1Yoa75m2yUFFbY2xwuqw/348s.jpg)
-
-It can also be centered!
-
-![Crepe](https://s3-media3.fl.yelpcdn.com/bphoto/cQ1Yoa75m2yUFFbY2xwuqw/348s.jpg){: .mx-auto.d-block :}
-
-Here's a code chunk:
-
-~~~
-var foo = function(x) {
-  return(x + 5);
+void _ConsoleLog(char* message) {
+    NSString *nsMessage = [NSString stringWithUTF8String:message];
+    NSLog(@"%@", nsMessage);
 }
-foo(3)
-~~~
-
-And here is the same code with syntax highlighting:
-
-```javascript
-var foo = function(x) {
-  return(x + 5);
-}
-foo(3)
 ```
 
-And here is the same code yet again but with line numbers:
+Build the library and copy it to your Unity project.
 
-{% highlight javascript linenos %}
-var foo = function(x) {
-  return(x + 5);
+## Calling from C#
+
+```
+using System.Runtime.InteropServices;
+
+[DllImport("__Internal")]
+private static extern void _ConsoleLog(string message);
+
+public void NativeConsoleLog(string message) {
+  _ConsoleLog(message);
 }
-foo(3)
-{% endhighlight %}
-
-## Boxes
-You can add notification, warning and error boxes like this:
-
-### Notification
-
-{: .box-note}
-**Note:** This is a notification box.
-
-### Warning
-
-{: .box-warning}
-**Warning:** This is a warning box.
-
-### Error
-
-{: .box-error}
-**Error:** This is an error box.
+```
