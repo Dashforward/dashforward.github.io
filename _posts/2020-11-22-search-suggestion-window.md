@@ -14,7 +14,7 @@ We will use `UIElements` for that.
 We will display an extra window with a search bar and a list of items to select:
 This article was made using `Unity 2020.2` which is in beta at the time of writing.
 
-<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-001.png">
+<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-000.gif">
 
 ## Creating the test window
 
@@ -115,8 +115,8 @@ Open the window to make sure things display properly:
 Add the list view in our uxml file, after the search field
 
 ```xml
-	<editor:ToolbarSearchField text="SearchField" class="search-field" />
-	<engine:ListView class="search-listview" />
+<editor:ToolbarSearchField text="SearchField" class="search-field" />
+<engine:ListView class="search-listview" />
 ```
 
 Now we can fill the stylesheet to give a height for our list view rows:
@@ -198,3 +198,148 @@ private void Init(List<string> searchOptions) {
 ```
 
 <img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-006.png">
+
+## Filtering content in the listview using the search field
+
+In `SearchAndSelectWindow.cs`, we will add search field interactions at the end of our `Init` method. `ToolbarSearchField` comes from the `UnityEditor.UIElements` namespace:
+
+```csharp
+/* ... */
+listView.style.height = m_Height;
+
+var searchField = root.Q<ToolbarSearchField>();
+searchField.RegisterCallback<ChangeEvent<string>>(evt => {
+	UpdateList(listView, evt.newValue);
+});
+```
+
+
+Then add the `UpdateList` method, which will update the filtered options based on the current searchfield text:
+
+```csharp
+private void UpdateList(ListView listView, string searchText) {
+	m_FilteredSearchOptions.Clear();
+
+	listView.selectedIndex = -1;
+	m_FilteredSearchOptions.AddRange(m_SearchOptions.Where((string text) => { return text.IndexOf(searchText, StringComparison.CurrentCultureIgnoreCase) >=0; }));
+
+	listView.Refresh();
+}
+```
+
+Now the content is filtered out based on why we type in:
+
+<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-006.png">
+
+## Opening the search window as a dropdown
+
+It's now time to wire the window so it can be opened from our initial text field as a way to search for values. Here is our `TextField` again from the first window:
+
+<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-002.png">
+
+First, at the top of `SearchAndSelectWindow` we will add a way to create and retrieve the current window:
+In order to create the editor window without the title and tab data, we use `ScriptableObject.CreateInstance`
+
+```csharp
+private static SearchAndSelectWindow _Instance;
+private static SearchAndSelectWindow Instance {
+	get {
+		if (_Instance == null) {
+			_Instance = ScriptableObject.CreateInstance<SearchAndSelectWindow>();
+		}
+
+		return _Instance;
+	}
+}
+```
+
+We need a method that will help us show the window at a particular position using `Rect`. In addition we know want to wire the possible values from the outside, so you can replace the old `OnEnable` method with this logic, as well as get rid of the `GetWindow` method:
+We also need an `onComplete` action that will return the selected text
+
+```csharp
+private System.Action<string> m_OnCompleteAction;
+
+public static void Show(Rect rect, List<string> searchOptions, System.Action<string> onComplete) {
+	Instance.Init(rect, searchOptions, onComplete);
+	Instance.Repaint();
+}
+
+private void Init(Rect rect, List<string> searchOptions, System.Action<string> onComplete) {
+	Vector2 v2 = GUIUtility.GUIToScreenPoint(new Vector2(rect.x, rect.y));
+	rect.x = v2.x;
+	rect.y = v2.y;
+	m_OnCompleteAction = onComplete;
+
+	Init(searchOptions);
+
+	ShowAsDropDown(rect, new Vector2(rect.width, m_Height));
+	Focus();
+}
+```
+
+Now we are ready to open the search suggestion window from our initial `TestWindow`. We use `textField.worldBound` property to retrieve the position where our window should be shown.
+Here is what the complete `TestWindow` looks like:
+
+```csharp
+using System;
+using System.Collections.Generic;
+using UnityEditor;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+public class TestWindow : EditorWindow {
+	private List<string> m_Values;
+
+	[MenuItem("Tools/Test Window")]
+	public static void GetWindow() => GetWindow<TestWindow>();
+
+	public void OnEnable() {
+
+		m_Values = new List<string>(Enum.GetNames(typeof(RuntimePlatform)));
+
+		VisualElement root = rootVisualElement;
+
+		var textField = new TextField("Platform:");
+		textField.RegisterCallback<ClickEvent>((evt) => {
+			//open the search window here, when onComplete is called we set the textfield data
+			System.Action<string> onComplete = (string text) => { textField.SetValueWithoutNotify(text); };
+			SearchAndSelectWindow.Show(textField.worldBound, m_Values, onComplete);
+		});
+		root.Add(textField);
+	}
+}
+```
+
+If we open `TestWindow` and click on the textfield, our window is now rendered in it, and clicking outside of it will close it:
+
+<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-008.png">
+
+We now just need to handle the selection so the text can be returned
+
+## Returning current selection and closing the window
+
+Our `TestWindow` already declares the `onComplete` action and will set the textfield text when called
+
+```csharp
+System.Action<string> onComplete = (string text) => { textField.SetValueWithoutNotify(text); };
+SearchAndSelectWindow.Show(textField.worldBound, m_Values, onComplete);
+```
+
+In `SearchAndSelectWindow`, we need to call the callback:
+
+We can do so at the end of our init method, when the selection of the listview has changed. We also call `Close` on the EditorWindow:
+
+```csharp
+listView.onSelectionChange += obj => {
+	if (m_OnCompleteAction != null) {
+		m_OnCompleteAction((string)obj.FirstOrDefault());
+	}
+	Close();
+};
+```
+
+That's it, our initial `TextField` now gets filled with our selection.
+
+
+
+
