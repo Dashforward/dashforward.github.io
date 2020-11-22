@@ -16,33 +16,6 @@ This article was made using `Unity 2020.2` which is in beta at the time of writi
 
 <img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-000.gif">
 
-## Creating the test window
-
-Create a new C# script for our editor window.
-Using UI elements, we can easily create a new text field:
-
-```csharp
-using UnityEditor;
-using UnityEngine;
-using UnityEngine.UIElements;
-
-public class TestWindow : EditorWindow {
-
-	[MenuItem("Tools/Test Window")]
-	public static void GetWindow() => GetWindow<TestWindow>();
-
-	public void OnEnable() {
-		var root = rootVisualElement;
-
-		var textField = new TextField("Platform:");
-		root.Add(textField);
-	}
-}
-```
-
-<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-002.png">
-
-
 ## Creating the search suggestion window
 
 <img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-003.png">
@@ -63,8 +36,6 @@ using UnityEngine.UIElements;
 
 public class SearchAndSelectWindow : EditorWindow {
 
-	private bool m_IsInitialized;
-	s
 	[MenuItem("Tools/Search And Select Window")]
 	public static void GetWindow() => GetWindow<SearchAndSelectWindow>();
 
@@ -73,20 +44,16 @@ public class SearchAndSelectWindow : EditorWindow {
 	}
 
 	private void Init() {
-		if (!m_IsInitialized) {
-			var root = rootVisualElement;
+		var root = rootVisualElement;
 
-			//load and add the uxml file
-			var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
-			VisualElement uxmlFileRoot = visualTree.Instantiate();
-			root.Add(uxmlFileRoot);
+		//load and add the uxml file
+		var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
+		VisualElement uxmlFileRoot = visualTree.Instantiate();
+		root.Add(uxmlFileRoot);
 
-			//load and add the uss stylesheet
-			var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
-			root.styleSheets.Add(styleSheet);
-
-			m_IsInitialized = true;
-		}
+		//load and add the uss stylesheet
+		var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
+		root.styleSheets.Add(styleSheet);
 	}
 
 }
@@ -134,8 +101,6 @@ We also keep track of the height as it will be used for the window height too:
 
 ```csharp
 public class SearchAndSelectWindow : EditorWindow {
-
-	private bool m_IsInitialized;
 	private List<string> m_SearchOptions;
 	private List<string> m_FilteredSearchOptions;
 	private const float m_Height = 320.0f;
@@ -158,42 +123,40 @@ Then, after we load the stylesheet, we will setup our list view
 
 ```csharp
 private void Init(List<string> searchOptions) {
-	if (!m_IsInitialized) {
-		m_SearchOptions = searchOptions;
-		//shallow copy
-		m_FilteredSearchOptions = m_SearchOptions.GetRange(0, m_SearchOptions.Count);
+	m_SearchOptions = searchOptions;
+	//shallow copy
+	m_FilteredSearchOptions = m_SearchOptions.GetRange(0, m_SearchOptions.Count);
 
-		var root = rootVisualElement;
-		var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
-		VisualElement labelFromUXML = visualTree.Instantiate();
-		root.Add(labelFromUXML);
+	var root = rootVisualElement;
+	var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
+	VisualElement labelFromUXML = visualTree.Instantiate();
+	root.Add(labelFromUXML);
 
-		var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
-		root.styleSheets.Add(styleSheet);
+	var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
+	root.styleSheets.Add(styleSheet);
 
-		//rows are rendered with a label
-		Func<VisualElement> makeItem = () => new Label();
+	//rows are rendered with a label
+	Func<VisualElement> makeItem = () => new Label();
 
-		//bindItem sets the correct value for a given row
-		//we use our filtered list for that
-		Action<VisualElement, int> bindItem = (e, i) => {
-			(e as Label).text = m_FilteredSearchOptions[i];
-		};
+	//bindItem sets the correct value for a given row
+	//we use our filtered list for that
+	Action<VisualElement, int> bindItem = (e, i) => {
+		(e as Label).text = m_FilteredSearchOptions[i];
+	};
 
-		//retrieve our list from the uxml file
-		var listView = root.Q<ListView>();
-		//alternate the background color of our rows so it is more readable
-		listView.showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly;
-		listView.makeItem = makeItem;
-		listView.bindItem = bindItem;
-		//our filtered list is the source
-		listView.itemsSource = m_FilteredSearchOptions;
-		//force to select only one row at a time
-		listView.selectionType = SelectionType.Single;
-		listView.style.height = m_Height;
+	//retrieve our list from the uxml file
+	var listView = root.Q<ListView>();
+	//alternate the background color of our rows so it is more readable
+	listView.showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly;
+	listView.makeItem = makeItem;
+	listView.bindItem = bindItem;
+	//our filtered list is the source
+	listView.itemsSource = m_FilteredSearchOptions;
+	//force to select only one row at a time
+	listView.selectionType = SelectionType.Single;
+	listView.style.height = m_Height;
 
-		m_IsInitialized = true;
-	}
+	m_IsInitialized = true;
 }
 ```
 
@@ -277,37 +240,46 @@ private void Init(Rect rect, List<string> searchOptions, System.Action<string> o
 }
 ```
 
-Now we are ready to open the search suggestion window from our initial `TestWindow`. We use `textField.worldBound` property to retrieve the position where our window should be shown.
-Here is what the complete `TestWindow` looks like:
+## Creating the test window
+
+Create a new C# script for our editor window.
+Using UI elements, we can easily create a new text field:
 
 ```csharp
-using System;
-using System.Collections.Generic;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 public class TestWindow : EditorWindow {
-	private List<string> m_Values;
 
 	[MenuItem("Tools/Test Window")]
 	public static void GetWindow() => GetWindow<TestWindow>();
 
 	public void OnEnable() {
-
-		m_Values = new List<string>(Enum.GetNames(typeof(RuntimePlatform)));
-
-		VisualElement root = rootVisualElement;
+		var root = rootVisualElement;
 
 		var textField = new TextField("Platform:");
-		textField.RegisterCallback<ClickEvent>((evt) => {
-			//open the search window here, when onComplete is called we set the textfield data
-			System.Action<string> onComplete = (string text) => { textField.SetValueWithoutNotify(text); };
-			SearchAndSelectWindow.Show(textField.worldBound, m_Values, onComplete);
-		});
 		root.Add(textField);
 	}
 }
+```
+
+<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-002.png">
+
+## Open the suggestion window from our new TestWindow 
+
+Now we are ready to open the search suggestion window from our initial `TestWindow`. We use `textField.worldBound` property to retrieve the position where our window should be shown.
+Here is what the complete `TestWindow` looks like:
+
+```csharp
+VisualElement root = rootVisualElement;
+var textField = new TextField("Platform:");
+textField.RegisterCallback<ClickEvent>((evt) => {
+	//open the search window here, when onComplete is called we set the textfield data
+	System.Action<string> onComplete = (string text) => { textField.SetValueWithoutNotify(text); };
+	SearchAndSelectWindow.Show(textField.worldBound, m_Values, onComplete);
+});
+root.Add(textField);
 ```
 
 If we open `TestWindow` and click on the textfield, our window is now rendered in it, and clicking outside of it will close it:
