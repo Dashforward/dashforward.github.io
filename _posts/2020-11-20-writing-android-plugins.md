@@ -1,13 +1,11 @@
 ---
 layout: post
-title: Writing android plugins for Unity
-subtitle: Part 1 - Hello World
+title: Writing android plugins for Unity - Part 1
+subtitle: Writing to the console 
 comments: false
 ---
 
 {% assign imgurl = "/assets/img/posts/2020-11-20-writing-android-plugins/" %}
-
-Writing to the console log from an android library
 
 ## Writing a library
 
