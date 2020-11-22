@@ -63,20 +63,30 @@ using UnityEngine.UIElements;
 
 public class SearchAndSelectWindow : EditorWindow {
 
+	private bool m_IsInitialized;
+	s
 	[MenuItem("Tools/Search And Select Window")]
 	public static void GetWindow() => GetWindow<SearchAndSelectWindow>();
 
 	public void OnEnable() {
-		var root = rootVisualElement;
+		Init();
+	}
 
-		//load and add the uxml file
-		var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
-		VisualElement uxmlFileRoot = visualTree.Instantiate();
-		root.Add(uxmlFileRoot);
+	private void Init() {
+		if (!m_IsInitialized) {
+			var root = rootVisualElement;
 
-		//load and add the uss stylesheet
-		var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
-		root.styleSheets.Add(styleSheet);
+			//load and add the uxml file
+			var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
+			VisualElement uxmlFileRoot = visualTree.Instantiate();
+			root.Add(uxmlFileRoot);
+
+			//load and add the uss stylesheet
+			var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
+			root.styleSheets.Add(styleSheet);
+
+			m_IsInitialized = true;
+		}
 	}
 
 }
@@ -100,5 +110,91 @@ Open the window to make sure things display properly:
 
 <img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-005.png">
 
+## Adding a list view
 
+Add the list view in our uxml file, after the search field
 
+```xml
+	<editor:ToolbarSearchField text="SearchField" class="search-field" />
+	<engine:ListView class="search-listview" />
+```
+
+Now we can fill the stylesheet to give a height for our list view rows:
+
+```css
+.search-listview {
+    --unity-item-height: 16;
+}
+```
+
+In `SearchAndSelectWindow`, 
+
+First, let's add two fields, we need two lists to keep track of the full list of possible options and our actual filtered result.
+We also keep track of the height as it will be used for the window height too:
+
+```csharp
+public class SearchAndSelectWindow : EditorWindow {
+
+	private bool m_IsInitialized;
+	private List<string> m_SearchOptions;
+	private List<string> m_FilteredSearchOptions;
+	private const float m_Height = 320.0f;
+
+	/* ... */
+}
+```
+
+In `OnEnable`, we will create some dummy data for testing
+
+```csharp
+public void OnEnable() {
+	//dummy data, this line will be removed in the future
+	var searchOptions = new List<string>(Enum.GetNames(typeof(RuntimePlatform)));
+	Init(searchOptions);
+}
+```
+
+Then, after we load the stylesheet, we will setup our list view
+
+```csharp
+private void Init(List<string> searchOptions) {
+	if (!m_IsInitialized) {
+		m_SearchOptions = searchOptions;
+		//shallow copy
+		m_FilteredSearchOptions = m_SearchOptions.GetRange(0, m_SearchOptions.Count);
+
+		var root = rootVisualElement;
+		var visualTree = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>("Assets/Scripts/Editor/SearchAndSelectWindow.uxml");
+		VisualElement labelFromUXML = visualTree.Instantiate();
+		root.Add(labelFromUXML);
+
+		var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>("Assets/Scripts/Editor/SearchAndSelectWindow.uss");
+		root.styleSheets.Add(styleSheet);
+
+		//rows are rendered with a label
+		Func<VisualElement> makeItem = () => new Label();
+
+		//bindItem sets the correct value for a given row
+		//we use our filtered list for that
+		Action<VisualElement, int> bindItem = (e, i) => {
+			(e as Label).text = m_FilteredSearchOptions[i];
+		};
+
+		//retrieve our list from the uxml file
+		var listView = root.Q<ListView>();
+		//alternate the background color of our rows so it is more readable
+		listView.showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly;
+		listView.makeItem = makeItem;
+		listView.bindItem = bindItem;
+		//our filtered list is the source
+		listView.itemsSource = m_FilteredSearchOptions;
+		//force to select only one row at a time
+		listView.selectionType = SelectionType.Single;
+		listView.style.height = m_Height;
+
+		m_IsInitialized = true;
+	}
+}
+```
+
+<img src="{{site.baseurl}}{{imgurl}}search-suggestion-window-006.png">
