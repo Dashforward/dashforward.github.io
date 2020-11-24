@@ -1,7 +1,7 @@
 ---
 layout: post
-title: Unity - Search suggestion window using UIElements
-subtitle: Search and filter popup for textfields
+title: Unity - Search suggestion window (part 1)
+subtitle: Search and filter popup for textfields using UIElements
 comments: false
 ---
 

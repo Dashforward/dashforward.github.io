@@ -136,58 +136,71 @@ Now it is time to construct our listview, each row is pretty simple, it just has
 
 <img src="{{site.baseurl}}{{imgurl}}search-suggestion-part2-002.png">
 
+It is necessary to have both an height and and a row height (item height) for the listview to display
+This will not give us dynamic height.
+
 ```csharp
-public SearchAndSelectList(List<string> values) {
-	/* ... */
+var listView = new ListView();
+listView.itemHeight = 150;
+listView.style.height = 20;
+```
 
-	//it is necessary to have both an height and and a row height (item height) for the listview to display
-	//we will cover changing that height dynamically in another article
-	var listView = new ListView();
-	listView.itemHeight = 150;
-	listView.style.height = 20;
+Next, we need to setup the `makeItem` func.
+Instead of using `uxml`, we will just set each item in code.
+Each time, will will need a root `VisualElement` with the proper `flex` rules to use it as an horizontal container.
+Then, add a `Label` and a `Button` for deletion:
 
-	Func<VisualElement> makeItem = () => {
-		//each item has an horizontal container 
-		var itemContainer = new VisualElement();
-		itemContainer.style.flexDirection = FlexDirection.Row; //horizontal
-		itemContainer.style.justifyContent = Justify.SpaceBetween; //expand space between items
+```csharp
+Func<VisualElement> makeItem = () => {
+	var itemContainer = new VisualElement();
+	itemContainer.style.flexDirection = FlexDirection.Row; //horizontal
+	itemContainer.style.justifyContent = Justify.SpaceBetween; //expand space between items
 
-		var label = new Label();
-		label.style.unityTextAlign = TextAnchor.MiddleCenter; //center text
-		itemContainer.Add(label);
+	var label = new Label();
+	label.style.unityTextAlign = TextAnchor.MiddleCenter; //center text
+	itemContainer.Add(label);
 
-		//delete button
-		var button = new Button();
-		button.text = "-";
+	//delete button
+	var button = new Button();
+	button.text = "-";
 
-		itemContainer.Add(button);
+	itemContainer.Add(button);
 
-		return itemContainer;
-	};
+	return itemContainer;
+};
+listView.makeItem = makeItem;
+```
 
-	Action<VisualElement, int> bindItem = (e, i) => {
-		e.Q<Label>().text = m_SelectedValues[i];
+(the assignement could be on the same line but it helps us understand which type we are setting here, a `Func` that returns a `VisualElement`.)
 
-		//every time we bind an item to some data, we set the proper functionality for our delete button
-		var deleteButton = e.Q<Button>();
-		if (deleteButton != null) {
-			deleteButton.clickable.clicked += () => {
-				//moves the value out off our selection list and back to our suggestion list
-				m_OptionsSource.Add(m_SelectedValues[i]);
-				m_SelectedValues.RemoveAt(i);
-				listView.Refresh();
-			};
-		}
-	};
+Then, we need to set `bindItem` which will be called everytime a row is used to display some content (rows are recycled).
+This is where we need to actually set the label and setup the button with its click event: 
 
-	listView.showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly;
-	listView.makeItem = makeItem;
-	listView.bindItem = bindItem;
-	listView.itemsSource = m_SelectedValues;
-	listView.selectionType = SelectionType.None;
-	Add(listView);
+```csharp
+Action<VisualElement, int> bindItem = (e, i) => {
+	e.Q<Label>().text = m_SelectedValues[i];
 
-}
+	//every time we bind an item to some data, we set the proper functionality for our delete button
+	var deleteButton = e.Q<Button>();
+	if (deleteButton != null) {
+		deleteButton.clickable.clicked += () => {
+			//moves the value out off our selection list and back to our suggestion list
+			m_OptionsSource.Add(m_SelectedValues[i]);
+			m_SelectedValues.RemoveAt(i);
+			listView.Refresh();
+		};
+	}
+};
+listView.bindItem = bindItem;
+```
+
+Finally, we will `showAlternatingRowBackgrounds`, avoid selection and set the `itemsSource`.
+
+```csharp
+listView.showAlternatingRowBackgrounds = AlternatingRowBackground.ContentOnly;
+listView.itemsSource = m_SelectedValues;
+listView.selectionType = SelectionType.None;
+Add(listView); //don't forget to add the listview to our VisualElement
 ```
 
 ## Opening our suggestion window
